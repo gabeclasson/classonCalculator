@@ -1,0 +1,134 @@
+***DATA TYPES***
+	The calculator is capable of manipulating two types of data: decimal values and arrays of decimal values. 
+	Decimal values are bounded in magnitude by ~10^308 and ~10^-308 The following are examples of acceptable formats:
+		- 123.454
+		- -1.234232e-232.000
+		- 4.00000000000000000000000000000000000000000000
+		- 49857493057297840968756897
+		
+	The following are unacceptable formats:
+		- 343.-34
+		- 4.5875E5
+		- infinity
+		- NaN
+	
+	It is important to note that whitespace is totally ignored by the calculator, so putting random spaces between characters will result in the same result as if those spaces were not there at all.
+	The user may input any decimal within the stated magnitude of any level of precision. However, every decimal digit in excess of ~15 significant figures will be rounded off. If at any point in the calculation a computation leaves the domain of the real numbers or is too large or small in magnitude, the calculator will return an error.
+	For the purposes of this calculator, any number input within 0.00000001% of an integer may be considered an integer, to make the calculator more forgiving of rounding errors. If a function or operator requires an integer input, that input must be bounded in magnitude by ~2.14748364 * 10^9.
+	 
+	All arrays are two dimensional in size, and every array must have at least one element. All elements of an array must be numbers. No gaps are permitted in arrays. Here are some acceptable formats of arrays:
+		- {{5}}
+		- {{5;3};{sin(66)}}
+		- {{5.3983;-9e5};{5; -3.4}}
+		
+	The following are examples of unacceptable formats:
+		- {{}}
+		- {{4, 6}}
+		- {{5;4},{}}
+		- [[45;45][2;5]]
+		- {{;;7}}
+	
+	As you can see, every array begins and ends with a curly brace {}. Each row in the array is also bounded by curly braces. Each row is delimited from other rows by semicolons, and each number is delimited from other numbers by a semicolon.
+	For the purposes of this calculator, an array whose rows each have the same number of elements is referred to as a matrix. This calculator is capable of performing some operations on matricies which it cannot perform on arrays in general.
+***FORMAT OF DOCUMENTATION***
+	All documentation for functions will be in the following form:
+	
+	<function name>(a[, b, c]) {different numbers of arguments are allowed for some functions, so a[, b, c] indicates that 1, 2, 3 arguments may be accepted.
+			Domain: <specifies for what values the function will return data. The domain may be a list of statements followed by periods. If the input satisfies any one of these conditions, then it is in the domain of the function. "Nothing" indicates that no input is an acceptable input.>
+			nothing: <Descirption of what the function returns if no arguments are passed.>
+			num a: <Description of what the function returns if one argument is passed which is a number.>
+			num a, num b: <Description of what the function returns if two arguments are passed which are a numbers.>
+			num a, array b: ...
+			...
+			Notes: ....
+		
+	All functions which normally take only numbers as inputs will also work if exactly one of their inputs is replaced with an array. For example, sin({{5;6}}) is equivalent to {{sin(5);sin(6)}}. Functions that take two inputs, say div, will function in a similar manner. div(5,{{5;3}}) is equivalent to {{div(5,5);div(5;3}}. It is important to note that if a function has a specific behavior defined for an array input, then this distributive behavior does not work unless specified. For example, pow(array a, num b) is specifically defined to have non-distributive behavior, so pow(num a, array b) is not automatically defined to have any particular behavior. As it turns out, pow(num a, array b) is defined to exhibit the distributive behavior, so its documentation notes specifically how this form is defined.
+
+***OPERATORS***
+	There are 9 operators which follow a standard order of operations. Every operator is equivalent to a parenthetical function, except for the subtraction operator. Like parenthetical functions, operators have the ability to take different data types.
+	
+	Operator documentation in order of operations:
+		a[b[, c]]
+			Domain: a is an array with a single row and b is a positive integer <= the number of elements in a. a is an array with multiple rows and b is a positive integer <= the number of rows in a. a is an array with multiple rows and b is a positive integer <= to the number of rows and c is a positive integer <= the number of elements in the bth row.
+			array a, num b: If a has only one row, gets the bth element in a's only row. If a has multiple rows, gets the bth row of a and returns it as an array.
+			array a, num b, num c: Gets the cth element in the bth row of a.
+		a!
+			Domain: a is a non-negative integer
+			num a: Returns the factorial of a, where a! == a * (a - 1) * (a - 2) * ... * 2 * 1. 
+		a^b
+			Domain: a is a positive number and b is a number. a is a negative number and b is an integer (in this case only, the integer must be exact, and the 0.00000001% error bound as noted above does not apply). a is an array and b is the integer 1. a is a square matrix and b is a positive integer. a is an invertible square matrix and b is a negative integer.
+			num a, num b: Returns a raised to the power b.
+			num a, array b: Distributes.
+			array a, num b: Represents a multiplied by itself b times. If b is 0, this returns the identity matrix which has the same number of rows as a. If b is negative, returns (the inverse of a) multiplied by itself -b times.
+		-a
+			Domain: a is a number.
+			num a: Returns -1 * a.
+			Notes: -------------a is a valid operation.
+		a*b
+			Domain: a and b are numbers. a and b are matrices such that the number of columns in a is equal to the number of rows in b.
+			num a, num b: Returns a * b.
+			num a, array b: Distributes.
+			array a, num b: Distributes.
+			array a, array b: Returns a * b (matrix multiplication).
+		a/b
+			Domain: a and b are numbers with b != 0.
+			num a, num b: Returns a divided by b (a/b).
+		a%b
+			Domain: a and b are numbers with b != 0.
+			num a, num b: Returns the remainder when a is divided by b, often known as the modulus operation. Always returns a number in the range [0, |b|), where || indicates the absolute value operation.
+		a+b
+			Domain: a and b are numbers.
+			num a, num b: Returns a+b, the sum of a and b.
+		a-b
+			Domain: a and b are numbers.
+			num a, num b: Returns a-b (or equivalently a + -1.0 * b), the signed difference between a and b.
+			
+	The order of operations is as follows: 
+		1. [] (left to right)
+		2. ! (left to right)
+		3. ^, - (the negative operation equivalent to *-1, NOT the minus operation which is the same character; this is why -2^2 == -4, -3! == -6, and -{{5;6}} == {{-5;-6}}) (right to leftm which allows for 3^-3^3 == 3^-(3^3) == 3^-27 != (3^-3)^3 == 3^-9
+		4. *, /, % (left to right)
+		5. +, - (the minus operation equvalent to +-1*) (left to right)
+
+***ERRORS***
+	Every calculation has a probability of error. If the calculator encounters an error, an error message will be returned of the type "error: <message>.". This will allow the user to gain some information about why their calculator failed.
+	
+	Error documentation:
+		error: arguments.
+			This is returned when the wrong number or data type of inputs is passed to a function.
+		error: array bounds.
+			This is returned when the calculator attempts to manipulate invalid indices of an array.
+		error: data type.
+			This is returned when the calculator expects a number but fails to parse it due to erroneous syntax.
+		error: dimension.
+			This is returned when a matrix or array is of the wrong dimensions, or if some operation involving the dimensions of an array are invalid.
+		error: domain.
+			This is returned when an input lies outside the domain of a function. The domain of f(x) is defined as all the values of x for which f(x) is a real number of an array of real numbers.
+		error: int argument.
+			This is returned when an argument is expected to be an integer or sufficiently close to an integer but fails to be so.
+		error: name.
+			This is returned when the calculator recognizes that the input matches a function call, but the function by the input name does not exist.
+		error: singular matrix.
+			This is returned when the calculator attempts to take the inverse of a singular (non-invertible) matrix.
+		error: syntax.
+			This is returned when something has been typed in incorrectly such that it does not follow the syntax of the program.
+		error: unreal output.
+			This is returned when the output of a function is so great that it cannot be represented by the calculator, or if the output is not defined.
+	
+	Some of these errors overlap in scope, and only one error is returned per erroneous calculation, even if the calculation has multiple errors. Therefore, error messages should be moderated with a dose of reason to help understand what exactly the issue was.
+	One error that may not be dealt with by the calculator is the stack overflow error. This can result from particularly intensive calculations. If you encounter this, please restart the calculator. 
+	
+***SPECIAL FUNCTIONS***
+	There are several functions within the calculator that do more than just take inputs and return number or arrays as outputs. Some of them are detailed below. If a function returns informational text, as soon as that function is evaluated by the calculator, the corresponding text, and nothing else, will print.
+	anglemode([a])
+	exit()
+	help([a])
+		Domain: a is a positive integer <= the number of functions available to this calculator. Nothing.
+		nothing: Gets key information about the use of the calculator.
+		num a: Gets key information about the ath function alphabetically available to this calculator.
+	in([a])
+	list()
+		Domain: Nothing.
+		nothing: Gets a numbered and ordered list of the name of every function available to this calculator.
+	out([a])
+	
